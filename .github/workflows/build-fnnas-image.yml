@@ -12,10 +12,10 @@ on:
       fnnas_base_version:
         description: "Select fnnas base image version (H28K / RK3528, 6.18.y kernel line)"
         required: false
-        default: "rockchip_1253"
+        default: "H28K_RK3528"
         type: choice
         options:
-          - rockchip_1253
+          - H28K_RK3528
       fnnas_board:
         description: "Select fnnas device board (H28K / RK3528)"
         required: false
