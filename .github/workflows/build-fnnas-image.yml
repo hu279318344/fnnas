@@ -12,10 +12,10 @@ on:
       fnnas_base_version:
         description: "Select fnnas base image version (H28K / RK3528, 6.18.y kernel line)"
         required: false
-        default: "H28K_RK3528"
+        default: "h28k_rk3528"
         type: choice
         options:
-          - H28K_RK3528
+          - h28k_rk3528
       fnnas_board:
         description: "Select fnnas device board (H28K / RK3528)"
         required: false
@@ -131,6 +131,15 @@ jobs:
 
           input_url="${{ inputs.fnnas_url }}"
           fnnas_base_version="${{ inputs.fnnas_base_version }}"
+
+          # Map the input name to the asset keyword used by the official fnnas_base_image release.
+          # The input value is also used as the release tag, so it may differ from the upstream asset name.
+          case "${fnnas_base_version}" in
+              h28k_rk3528) fnnas_base_asset="rockchip_1253" ;;
+              *)           fnnas_base_asset="${fnnas_base_version}" ;;
+          esac
+          echo "Base version: [ ${fnnas_base_version} ] -> asset keyword: [ ${fnnas_base_asset} ]"
+
           [[ -n "${fnnas_base_version}" ]] && build_tag="fnnas_${fnnas_base_version}" || build_tag="fnnas_save"
 
           # -------------------------------------------------------
@@ -189,7 +198,7 @@ jobs:
                   -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                   https://api.github.com/repos/ophub/fnnas/releases?per_page=20 | \
                   jq -r --arg RTK "fnnas_base_image" \
-                  --arg BOARD "${fnnas_base_version}" \
+                  --arg BOARD "${fnnas_base_asset}" \
                   '[.[] | select(.tag_name | contains($RTK))] |
                   map(.assets[] | select(.name | contains($BOARD) and endswith(".img.xz"))) |
                   sort_by(.updated_at) |
